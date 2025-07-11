@@ -21,7 +21,7 @@ export const SidebarItems = [
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: "/admin/profile",
     icon: Settings,
     hasSubmenu: false,
   },

@@ -6,6 +6,24 @@ export const getCourses = async (req, res) => {
   res.json(courses);
 };
 
+// ✅ GET: Single course by ID
+export const getCourseById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.json(course);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching course", error: error.message });
+  }
+};
+
 // ✅ POST: Add course
 export const addCourse = async (req, res) => {
   try {
