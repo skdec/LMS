@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"; // Import admin routes
+import courseRoutes from "./routes/courseRoutes.js"; // Import admin routes
 import { initializeAdmin } from "./controllers/authController.js";
 import connectDB from "./config/db.js";
 
@@ -40,6 +41,7 @@ app.use(
 // Routes
 app.use(authRoutes);
 app.use(adminRoutes); // Use admin routes
+app.use(courseRoutes); // course routes
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
