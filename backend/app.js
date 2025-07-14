@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"; // Import admin routes
@@ -20,6 +21,11 @@ app.use(
     limit: "1mb", // ya "2mb", jitna chahiye
   })
 );
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 2) URL-encoded parser bhi limit badhao (agar use kar rahe ho)
 

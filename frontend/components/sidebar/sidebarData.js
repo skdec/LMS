@@ -15,7 +15,7 @@ export const SidebarItems = [
   },
   {
     label: "Students",
-    href: "/students",
+    href: "/students-data",
     icon: Users,
     hasSubmenu: false,
   },

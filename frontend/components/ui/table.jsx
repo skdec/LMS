@@ -1,9 +1,14 @@
-// components/ui/ReusableTable.jsx
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Eye, Trash2, Pencil } from "lucide-react";
 
-export default function ReusableTable({ columns, data, onUpdate, onDelete }) {
+export default function ReusableTable({
+  columns,
+  data,
+  onView,
+  onUpdate,
+  onDelete,
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200 rounded-lg shadow">
@@ -25,24 +30,37 @@ export default function ReusableTable({ columns, data, onUpdate, onDelete }) {
             >
               {columns.map((col) => (
                 <td key={col.key} className="py-3 px-6">
-                  {item[col.key]}
+                  {col.render ? col.render(item) : item[col.key]}
                 </td>
               ))}
               <td className="py-3 px-6 flex gap-3 items-center">
-                <button
-                  onClick={() => onUpdate(item._id)}
-                  className="text-blue-500 hover:text-blue-700"
-                  title="Edit"
-                >
-                  <Pencil size={18} />
-                </button>
-                <button
-                  onClick={() => onDelete(item._id)}
-                  className="text-red-500 hover:text-red-700"
-                  title="Delete"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {onView && (
+                  <button
+                    onClick={() => onView(item)}
+                    className="text-purple-500 hover:text-purple-700"
+                    title="View"
+                  >
+                    <Eye size={18} />
+                  </button>
+                )}
+                {onUpdate && (
+                  <button
+                    onClick={() => onUpdate(item._id)}
+                    className="text-blue-500 hover:text-blue-700"
+                    title="Edit"
+                  >
+                    <Pencil size={18} />
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(item._id)}
+                    className="text-red-500 hover:text-red-700"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </td>
             </tr>
           ))}
