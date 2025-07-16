@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Course from "../models/Course.js";
 
 // ✅ GET all courses
@@ -57,7 +58,36 @@ export const updateCourse = async (req, res) => {
 
 // ✅ DELETE: Remove course
 export const deleteCourse = async (req, res) => {
-  const { id } = req.params;
-  await Course.findByIdAndDelete(id);
-  res.json({ message: "Course deleted successfully" });
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid course ID" });
+    }
+    const course = await Course.findByIdAndDelete(id);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    res.json({ message: "Course deleted successfully" });
+  } catch (error) {
+    console.error("Error in deleteCourse:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to delete course", error: error.message });
+  }
+};
+
+// ✅ Get course fees by course title (use "title" instead of "name")
+export const getCourseFeesByName = async (req, res) => {
+  try {
+    const courseTitle = req.params.name;
+    const course = await Course.findOne({ title: courseTitle }); // updated to 'title'
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.json({ fees: course.price }); // assuming 'price' is fee
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
 };

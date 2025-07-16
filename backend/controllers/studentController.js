@@ -36,9 +36,29 @@ export const addStudent = async (req, res) => {
 export const updateStudent = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid student ID" });
+    }
+
+    // Log the incoming data for debugging
+    console.log("Update Student req.body:", req.body);
+
+    // Validate required fields
+    const requiredFields = [
+      "candidateName",
+      "nameOfProgramme",
+      "dob",
+      "mobileNo",
+      "email",
+      "aadharNumber",
+      "gender",
+    ];
+    for (const field of requiredFields) {
+      if (!req.body[field]) {
+        return res
+          .status(400)
+          .json({ message: `Missing required field: ${field}` });
+      }
     }
 
     const existingStudent = await Student.findById(id);
@@ -107,20 +127,16 @@ export const removeDocument = async (req, res) => {
       }
     }
 
-    // Filter document list and save
-    student.documents = student.documents.filter(
-      (doc) => !doc.includes(filename)
+    // Filter document list and update in DB atomically
+    const updatedStudent = await Student.findByIdAndUpdate(
+      id,
+      { documents: student.documents.filter((doc) => !doc.includes(filename)) },
+      { new: true }
     );
 
-    // Ensure __v is a number before saving to prevent $inc error
-    if (typeof student.__v !== 'number') {
-      student.__v = 0;
-    }
-
-    await student.save({ validateBeforeSave: false }); // Skip validation
     res.status(200).json({
       message: "File removed successfully",
-      documents: student.documents,
+      documents: updatedStudent.documents,
     });
   } catch (err) {
     console.error("❌ Error removing document:", err);
