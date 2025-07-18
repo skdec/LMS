@@ -6,6 +6,7 @@ import axiosInstance from "@/utils/axiosInstance";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useProtectedRoute } from "@/utils/useProtectedRoute";
 import Input from "@/components/ui/Input";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 const fieldGroups = {
   "Personal Information": [
@@ -357,60 +358,22 @@ export default function StudentProfilePage() {
         </div>
 
         {/* Delete Modal */}
-        {docToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-              <h3 className="text-lg text-gray-600 font-semibold mb-4">
-                Delete Document
-              </h3>
-              <p className="mb-6 text-gray-600">
-                Are you sure you want to delete this document?
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  onClick={() => setDocToDelete(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                  onClick={() => confirmDeleteDocument(docToDelete)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmModal
+          isOpen={!!docToDelete}
+          onClose={() => setDocToDelete(null)}
+          onConfirm={() => confirmDeleteDocument(docToDelete)}
+          title="Delete Document"
+          message="Are you sure you want to delete this document?"
+        />
 
         {/* Update Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-md">
-            <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-              <h3 className="text-lg font-semibold text-gray-600 mb-4">
-                Confirm Update
-              </h3>
-              <p className="mb-6 text-gray-600">
-                Are you sure you want to update this student&apos;s profile?
-              </p>
-              <div className="flex justify-end gap-4">
-                <button
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  onClick={confirmUpdate}
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={confirmUpdate}
+          title="Update Student"
+          message="Are you sure you want to update this student's profile?"
+        />
 
         <button
           className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
