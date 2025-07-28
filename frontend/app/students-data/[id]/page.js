@@ -7,6 +7,8 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useProtectedRoute } from "@/utils/useProtectedRoute";
 import Input from "@/components/ui/Input";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import SelectField from "@/components/ui/SelectField";
+import FileUploadField from "@/components/ui/FileUploadField";
 
 const fieldGroups = {
   "Personal Information": [
@@ -215,29 +217,29 @@ export default function StudentProfilePage() {
                         error={formErrors[key]}
                       />
                     ) : type === "select" ? (
-                      <select
+                      <SelectField
                         value={student.nameOfProgramme}
                         onChange={(e) => handleProgrammeChange(e.target.value)}
-                        className="w-full border rounded-lg px-4 py-2 border-gray-300"
-                      >
-                        <option value="">Select Programme</option>
-                        {courses.map((c) => (
-                          <option key={c._id} value={c.title}>
-                            {c.title}
-                          </option>
-                        ))}
-                      </select>
+                        options={courses.map((c) => ({
+                          value: c.title,
+                          label: c.title,
+                        }))}
+                        error={formErrors[key]}
+                        required
+                      />
                     ) : type === "status" ? (
-                      <select
+                      <SelectField
                         value={student.status}
                         onChange={(e) =>
                           setStudent({ ...student, status: e.target.value })
                         }
-                        className="w-full border rounded-lg px-4 py-2 border-gray-300"
-                      >
-                        <option value="active">Active</option>
-                        <option value="disabled">Disabled</option>
-                      </select>
+                        options={[
+                          { value: "active", label: "Active" },
+                          { value: "disabled", label: "Disabled" },
+                        ]}
+                        error={formErrors[key]}
+                        required
+                      />
                     ) : (
                       <Input
                         type="text"
@@ -311,16 +313,15 @@ export default function StudentProfilePage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Upload More Documents
             </h2>
-            <input
-              type="file"
-              multiple
-              accept=".pdf,.jpg,.jpeg,.png"
-              onChange={handleFileChange}
-              className="w-full border rounded-lg px-4 py-2 border-gray-300"
-            />
-            {formErrors.document && (
-              <p className="text-red-500 text-sm mt-1">{formErrors.document}</p>
-            )}
+            <div className="md:col-span-2">
+              <FileUploadField
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={handleFileChange}
+                error={formErrors.document}
+                label="Upload Documents"
+              />
+            </div>
           </div>
         )}
 

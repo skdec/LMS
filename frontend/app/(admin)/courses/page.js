@@ -2,12 +2,12 @@
 
 import Head from "next/head";
 import { useEffect, useState, useRef } from "react";
-
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
 import ReusableTable from "@/components/ui/table";
 import AddCourseForm from "@/components/CourseForm";
 import { useProtectedRoute } from "@/utils/useProtectedRoute";
+import Button from "@/components/ui/Button";
 
 export default function Home() {
   useProtectedRoute();
@@ -108,15 +108,17 @@ export default function Home() {
               <h2 className="text-xl font-bold">
                 {editCourse ? "Update Course" : "Add New Course"}
               </h2>
-              <button
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => {
                   setShowModal(false);
                   setEditCourse(null);
                 }}
-                className="text-gray-500 hover:text-gray-800 text-xl"
+                className="text-xl font-bold"
               >
-                &times;
-              </button>
+                ×
+              </Button>
             </div>
 
             {/* ✅ Pass props to form */}
@@ -153,15 +155,16 @@ export default function Home() {
               You have total {courses.length} Courses.
             </p>
           </div>
-          <button
+          <Button
+            variant="primary"
+            size="lg"
             onClick={() => {
               setEditCourse(null); // add mode
               setShowModal(true);
             }}
-            className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
           >
             + Add Course
-          </button>
+          </Button>
         </div>
 
         <ReusableTable
