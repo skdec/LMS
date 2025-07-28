@@ -4,9 +4,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
-import adminRoutes from "./routes/adminRoutes.js"; // Import admin routes
-import courseRoutes from "./routes/courseRoutes.js"; // Import admin routes
-import studentRoute from "./routes/studentRoutes.js"; // Import admin routes
+import adminRoutes from "./routes/adminRoutes.js";
+import courseRoutes from "./routes/courseRoutes.js";
+import studentRoute from "./routes/studentRoutes.js";
 import { initializeAdmin } from "./controllers/authController.js";
 import connectDB from "./config/db.js";
 
@@ -16,18 +16,9 @@ dotenv.config();
 // Create Express app
 const app = express();
 
-app.use(
-  express.json({
-    limit: "1mb", // ya "2mb", jitna chahiye
-  })
-);
-
+// Get directory paths for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// 2) URL-encoded parser bhi limit badhao (agar use kar rahe ho)
 
 // Connect to database
 connectDB();
@@ -35,20 +26,25 @@ connectDB();
 // Initialize default admin
 initializeAdmin();
 
-// Middlewares
-app.use(express.json());
+// Middleware
+app.use(express.json({ limit: "10mb" })); // Set reasonable limit for file uploads
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 app.use(
   cors({
-    origin: "http://localhost:3000", // Your frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow PUT and other methods
-    credentials: true, // If you're using cookies or auth headers
+    origin: "http://localhost:3000", // Frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    credentials: true, // Enable if using cookies or auth headers
   })
 );
 
+// Static file serving for uploads
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Routes
 app.use(authRoutes);
-app.use(adminRoutes); // Use admin routes
-app.use(courseRoutes); // course routes
+app.use(adminRoutes);
+app.use(courseRoutes);
 app.use(studentRoute);
 
 // Health check endpoint
@@ -56,6 +52,7 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
+    message: "LMS Backend API is running",
   });
 });
 
@@ -67,7 +64,7 @@ app.use((req, res) => {
   });
 });
 
-// Error handler
+// Global error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error("❌ Server error:", err);
