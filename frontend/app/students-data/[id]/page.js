@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axiosInstance from "@/utils/axiosInstance";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useProtectedRoute } from "@/utils/useProtectedRoute";
@@ -34,11 +34,13 @@ const fieldGroups = {
     { key: "religion", label: "Religion" },
     { key: "employed", label: "Employment Status" },
     { key: "status", label: "Status", type: "status" },
+    { key: "admissionDate", label: "Admission Date", type: "date" },
   ],
 };
 
 export default function StudentProfilePage() {
   useProtectedRoute();
+  const router = useRouter();
   const { id } = useParams();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -160,6 +162,7 @@ export default function StudentProfilePage() {
       setNewFiles([]);
       fetchStudent();
       setTimeout(() => setSuccessMessage(null), 3000);
+      router.push("/students-data");
     } catch {
       setError("Update failed. Please try again.");
       setIsModalOpen(false);

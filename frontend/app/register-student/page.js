@@ -12,8 +12,7 @@ import {
   FaIdCard,
   FaFileUpload,
 } from "react-icons/fa";
-import Input from "@/components/ui/Input";
-import SelectField from "@/components/ui/SelectField";
+import Input from "@/components/ui/Input"; // Imported Input component
 import FileUploadField from "@/components/ui/FileUploadField";
 
 export default function RegisterStudentPage() {
@@ -21,15 +20,14 @@ export default function RegisterStudentPage() {
   const [courses, setCourses] = useState([]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [courseFees, setCourseFees] = useState(0);
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm({ mode: "onChange" });
 
@@ -41,15 +39,23 @@ export default function RegisterStudentPage() {
       try {
         setIsLoadingCourses(true);
         const res = await axiosInstance.get("/get-course");
-        if (res.data && Array.isArray(res.data)) {
+        console.log("Courses API response:", res.data);
+        if (Array.isArray(res.data)) {
           setCourses(res.data);
           setErrorMessage("");
         } else {
           throw new Error("Invalid course data format");
         }
       } catch (error) {
-        console.error("Failed to fetch courses:", error);
-        setErrorMessage("Failed to load courses. Please try again.");
+        console.error(
+          "Failed to fetch courses:",
+          error.response?.data || error.message
+        );
+        setErrorMessage(
+          `Failed to load courses: ${
+            error.response?.data?.message || error.message
+          }`
+        );
       } finally {
         setIsLoadingCourses(false);
       }
@@ -60,14 +66,17 @@ export default function RegisterStudentPage() {
 
   // Auto-populate courseFees and finalFees when course changes
   useEffect(() => {
-    if (!selectedCourseId || courses.length === 0) return;
+    if (!selectedCourseId || courses.length === 0) {
+      setValue("courseFees", "");
+      setValue("finalFees", "");
+      return;
+    }
 
     const selected = courses.find((c) => c._id === selectedCourseId);
     if (selected) {
       setValue("nameOfProgramme", selected.title);
-      setValue("courseFees", selected.price); // ✅ fixed
-      setValue("finalFees", selected.price);
-      setCourseFees(selected.price);
+      setValue("courseFees", selected.price.toString());
+      setValue("finalFees", selected.price.toString());
     }
   }, [selectedCourseId, courses, setValue]);
 
@@ -79,30 +88,49 @@ export default function RegisterStudentPage() {
     Object.entries(data).forEach(([key, value]) => {
       if (key === "documents" && value?.length > 0) {
         Array.from(value).forEach((file) => formData.append("documents", file));
-      } else {
+      } else if (value) {
         formData.append(key, value);
       }
     });
 
     try {
-      const response = await axiosInstance.post("/students-upload", formData);
+      const response = await axiosInstance.post("/students-upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       if (response.status === 200 || response.status === 201) {
         setSuccessMessage("Student registered successfully! Redirecting...");
-        reset();
+        setIsRedirecting(true);
         setTimeout(() => router.push("/students-data"), 1500);
       } else {
         throw new Error("Unexpected response");
       }
     } catch (err) {
-      console.error("Upload failed:", err);
+      console.error("Registration failed:", err.response?.data || err.message);
       setErrorMessage(
-        err.response?.data?.message || "Registration failed. Please try again."
+        err.response?.data?.message ||
+          err.message ||
+          "Registration failed. Please try again."
       );
     }
   };
 
   const sections = [
+    {
+      title: "Admission Info",
+      icon: <FaGraduationCap />,
+      fields: [
+        {
+          component: Input,
+          label: "Admission Date",
+          name: "admissionDate",
+          type: "date",
+          required: true,
+        },
+      ],
+    },
     {
       title: "Personal Information",
       icon: <FaUser />,
@@ -164,7 +192,10 @@ export default function RegisterStudentPage() {
           component: SelectField,
           label: "Program",
           name: "courseId",
-          options: courses.map((c) => ({ value: c._id, label: c.title })),
+          options:
+            courses.length > 0
+              ? courses.map((c) => ({ value: c._id, label: c.title }))
+              : [{ value: "", label: "No courses available" }],
           required: true,
         },
         {
@@ -172,9 +203,13 @@ export default function RegisterStudentPage() {
           label: "Course Fees",
           name: "courseFees",
           readOnly: true,
-          value: courseFees,
         },
-        { component: Input, label: "Final Fees", name: "finalFees" },
+        {
+          component: Input,
+          label: "Final Fees",
+          name: "finalFees",
+          required: true,
+        },
       ],
     },
     {
@@ -213,6 +248,7 @@ export default function RegisterStudentPage() {
           name: "documents",
           multiple: true,
           required: true,
+          accept: ".pdf,.jpg,.jpeg,.png",
         },
       ],
     },
@@ -223,7 +259,6 @@ export default function RegisterStudentPage() {
       <Head>
         <title>Register Student</title>
       </Head>
-
       <div className="max-w-4xl mx-auto bg-white p-8 mt-10 rounded-2xl shadow-xl">
         <h1 className="text-3xl font-bold mb-8 text-gray-800">
           Register New Student
@@ -242,6 +277,11 @@ export default function RegisterStudentPage() {
         {isLoadingCourses && (
           <div className="p-4 rounded-lg mb-6 bg-blue-100 text-blue-800">
             Loading courses...
+          </div>
+        )}
+        {isRedirecting && (
+          <div className="p-4 rounded-lg mb-6 bg-blue-100 text-blue-800">
+            Redirecting to students data...
           </div>
         )}
 
@@ -265,15 +305,21 @@ export default function RegisterStudentPage() {
                           error={errors[field.name]}
                           multiple={field.multiple}
                           required={field.required}
+                          accept={field.accept}
                           {...register(field.name, {
                             required: field.required
                               ? `${field.label} is required`
                               : false,
+                            validate: (files) =>
+                              field.required && (!files || files.length === 0)
+                                ? "At least one file is required"
+                                : true,
                           })}
                         />
                       </div>
                     );
                   }
+
                   if (field.component === SelectField) {
                     return (
                       <SelectField
@@ -290,28 +336,46 @@ export default function RegisterStudentPage() {
                       />
                     );
                   }
-                  // Default: Input
+
                   return (
-                    <Input
-                      key={idx}
-                      label={field.label}
-                      type={field.type}
-                      readOnly={field.readOnly}
-                      defaultValue={field.readOnly ? field.value : undefined}
-                      error={errors[field.name]}
-                      required={field.required}
-                      {...register(field.name, {
-                        required: field.required
-                          ? `${field.label} is required`
-                          : false,
-                        pattern: field.pattern
-                          ? {
-                              value: field.pattern,
-                              message: `Invalid ${field.label}`,
-                            }
-                          : undefined,
-                      })}
-                    />
+                    <div key={idx} className="relative">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {field.label}
+                          {field.required && (
+                            <span className="text-red-500 ml-1">*</span>
+                          )}
+                        </label>
+                      </div>
+                      <Input
+                        label={field.label}
+                        type={field.type}
+                        readOnly={field.readOnly}
+                        className={`${
+                          errors[field.name]
+                            ? "border-red-500"
+                            : "border-gray-300"
+                        } ${
+                          field.readOnly ? "bg-gray-100 cursor-not-allowed" : ""
+                        }`}
+                        {...register(field.name, {
+                          required: field.required
+                            ? `${field.label} is required`
+                            : false,
+                          pattern: field.pattern
+                            ? {
+                                value: field.pattern,
+                                message: `Invalid ${field.label}`,
+                              }
+                            : undefined,
+                        })}
+                      />
+                      {errors[field.name] && (
+                        <p className="text-red-500 text-xs mt-1">
+                          {errors[field.name].message}
+                        </p>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -336,3 +400,61 @@ export default function RegisterStudentPage() {
     </DashboardLayout>
   );
 }
+
+// Inline SelectField and FileUploadField (replace with imports if available)
+const SelectField = ({ label, options = [], error, required, ...rest }) => (
+  <div className="relative">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all text-gray-800 ${
+        error ? "border-red-500" : "border-gray-300"
+      }`}
+      {...rest}
+    >
+      <option value="">Select {label}</option>
+      {options.map((opt) =>
+        typeof opt === "object" ? (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ) : (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        )
+      )}
+    </select>
+    {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+  </div>
+);
+
+// const FileUploadField = ({
+//   label,
+//   error,
+//   multiple,
+//   required,
+//   accept,
+//   ...rest
+// }) => (
+//   <div className="relative">
+//     <label className="block text-sm font-medium text-gray-700 mb-1">
+//       {label} {required && <span className="text-red-500">*</span>}
+//     </label>
+//     <div className="flex items-center justify-center w-full">
+//       <label className="flex flex-col items-center w-full px-4 py-6 bg-gray-50 text-gray-600 rounded-lg border-2 border-dashed cursor-pointer hover:bg-gray-100 transition">
+//         <FaFileUpload className="text-2xl mb-2" />
+//         <span className="text-sm">Click to upload or drag and drop</span>
+//         <input
+//           type="file"
+//           className="hidden"
+//           multiple={multiple}
+//           accept={accept}
+//           {...rest}
+//         />
+//       </label>
+//     </div>
+//     {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+//   </div>
+// );

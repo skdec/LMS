@@ -80,13 +80,29 @@ export const deleteCourse = async (req, res) => {
 export const getCourseFeesByName = async (req, res) => {
   try {
     const courseTitle = req.params.name;
-    const course = await Course.findOne({ title: courseTitle }); // updated to 'title'
+    console.log("Requested title:", courseTitle); // Debug
+    const course = await Course.findOne({ title: courseTitle });
+    console.log("Course found:", course); // Debug
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    res.json({ fees: course.price });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+// 🆕 New controller
+export const getCourseFeesById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const course = await Course.findById(id);
 
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
 
-    res.json({ fees: course.price }); // assuming 'price' is fee
+    res.json({ fees: course.price });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

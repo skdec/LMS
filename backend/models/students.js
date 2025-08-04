@@ -35,6 +35,10 @@ const studentSchema = new mongoose.Schema(
     },
     courseFees: Number, // fetched automatically on course select
     finalFees: Number, // manually editable
+    admissionDate: {
+      type: Date,
+      required: true, // ya false agar optional rakhna ho
+    },
 
     documents: [String],
   },

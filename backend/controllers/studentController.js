@@ -4,6 +4,7 @@ import fs from "fs/promises"; // Use promises for cleaner async handling
 import mongoose from "mongoose";
 
 // ✅ ADD Student
+// ✅ ADD Student
 export const addStudent = async (req, res) => {
   try {
     const counter = await Counter.findOneAndUpdate(
@@ -18,6 +19,7 @@ export const addStudent = async (req, res) => {
       ...req.body,
       srNo: counter.seq,
       documents: filePaths,
+      admissionDate: new Date(req.body.admissionDate), // ✅ convert to Date object
     });
 
     const saved = await newStudent.save();
@@ -40,10 +42,6 @@ export const updateStudent = async (req, res) => {
       return res.status(400).json({ message: "Invalid student ID" });
     }
 
-    // Log the incoming data for debugging
-    console.log("Update Student req.body:", req.body);
-
-    // Validate required fields
     const requiredFields = [
       "candidateName",
       "nameOfProgramme",
@@ -76,6 +74,7 @@ export const updateStudent = async (req, res) => {
       id,
       {
         ...req.body,
+        admissionDate: new Date(req.body.admissionDate), // ✅ updated date conversion
         documents: updatedDocuments,
       },
       { new: true }
