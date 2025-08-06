@@ -1,5 +1,5 @@
 // components/ui/Input.jsx
-const Input = ({ icon: Icon, className = "", ...rest }) => {
+const Input = ({ icon: Icon, className = "", register, name, ...rest }) => {
   return (
     <div className="relative">
       {Icon && (
@@ -8,6 +8,7 @@ const Input = ({ icon: Icon, className = "", ...rest }) => {
         </span>
       )}
       <input
+        {...(register && name ? register(name) : {})}
         {...rest}
         className={`w-full border px-3 py-2 rounded-md text-gray-900 placeholder:text-gray-600 ${
           Icon ? "pl-8" : ""

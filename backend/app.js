@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"; // Import admin routes
 import courseRoutes from "./routes/courseRoutes.js"; // Import admin routes
 import studentRoute from "./routes/studentRoutes.js"; // Import admin routes
+import invoiceRoutes from "./routes/invoiceRoutes.js"; // Import invoice routes
 import { initializeAdmin } from "./controllers/authController.js";
 import connectDB from "./config/db.js";
 
@@ -50,6 +51,7 @@ app.use(authRoutes);
 app.use(adminRoutes); // Use admin routes
 app.use(courseRoutes); // course routes
 app.use(studentRoute);
+app.use("/invoice", invoiceRoutes); // invoice routes
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
