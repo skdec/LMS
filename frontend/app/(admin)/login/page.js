@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { FiUser, FiLock, FiLogIn } from "react-icons/fi";
+import { User, Lock, LogIn } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import InputField from "@/components/ui/InputField"; // ✅ Path sahi rakho
 
@@ -46,7 +46,7 @@ export default function Login() {
     {
       name: "username",
       type: "text",
-      icon: FiUser,
+      icon: User,
       placeholder: "Username",
       autoComplete: "username",
       rules: {
@@ -61,7 +61,7 @@ export default function Login() {
     {
       name: "password",
       type: "password",
-      icon: FiLock,
+      icon: Lock,
       placeholder: "Password",
       autoComplete: "current-password",
       rules: {
@@ -156,7 +156,7 @@ export default function Login() {
                 </>
               ) : (
                 <span className="flex items-center">
-                  <FiLogIn className="mr-2" />
+                  <LogIn className="mr-2" />
                   Sign In
                 </span>
               )}

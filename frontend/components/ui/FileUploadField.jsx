@@ -1,5 +1,5 @@
 import React from "react";
-import { FaFileUpload } from "react-icons/fa";
+import { Upload } from "lucide-react";
 
 const FileUploadField = ({ label, error, required, multiple, ...rest }) => (
   <div className="mb-2">
@@ -9,7 +9,7 @@ const FileUploadField = ({ label, error, required, multiple, ...rest }) => (
       </label>
     )}
     <label className="flex flex-col items-center justify-center w-full px-4 py-8 bg-gray-50 text-gray-600 rounded-lg border-2 border-dashed border-gray-300 cursor-pointer hover:bg-blue-50 transition group">
-      <FaFileUpload className="text-3xl mb-2 text-blue-400 group-hover:text-blue-600 transition" />
+      <Upload className="text-3xl mb-2 text-blue-400 group-hover:text-blue-600 transition" />
       <span className="text-sm mb-1">Click to upload or drag and drop</span>
       <input type="file" multiple={multiple} className="hidden" {...rest} />
     </label>

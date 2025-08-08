@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import InvoiceAnalytics from "@/components/InvoiceAnalytics";
 
 const PaymentAnalyticsPage = () => {
   const [analytics, setAnalytics] = useState(null);
@@ -37,7 +36,6 @@ const PaymentAnalyticsPage = () => {
         </div>
 
         {/* Analytics Dashboard */}
-        <InvoiceAnalytics />
 
         {/* Additional Analytics Content */}
         {!loading && analytics && (

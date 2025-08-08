@@ -7,11 +7,11 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import axiosInstance from "@/utils/axiosInstance";
 import {
-  FaUser,
-  FaGraduationCap,
-  FaIdCard,
-  FaFileUpload,
-} from "react-icons/fa";
+  LucideUser,
+  LucideGraduationCap,
+  LucideIdCard,
+  LucideFileUpload,
+} from "lucide-react";
 import Input from "@/components/ui/Input"; // Imported Input component
 import FileUploadField from "@/components/ui/FileUploadField";
 
@@ -120,7 +120,7 @@ export default function RegisterStudentPage() {
   const sections = [
     {
       title: "Admission Info",
-      icon: <FaGraduationCap />,
+      icon: <LucideGraduationCap />,
       fields: [
         {
           component: Input,
@@ -133,7 +133,7 @@ export default function RegisterStudentPage() {
     },
     {
       title: "Personal Information",
-      icon: <FaUser />,
+      icon: <LucideUser />,
       fields: [
         {
           component: Input,
@@ -161,7 +161,7 @@ export default function RegisterStudentPage() {
     },
     {
       title: "Contact Information",
-      icon: <FaIdCard />,
+      icon: <LucideIdCard />,
       fields: [
         { component: Input, label: "Nationality", name: "nationality" },
         { component: Input, label: "Address", name: "permanentAddress" },
@@ -186,7 +186,7 @@ export default function RegisterStudentPage() {
     },
     {
       title: "Program Details",
-      icon: <FaGraduationCap />,
+      icon: <LucideGraduationCap />,
       fields: [
         {
           component: SelectField,
@@ -214,7 +214,7 @@ export default function RegisterStudentPage() {
     },
     {
       title: "Additional Information",
-      icon: <FaFileUpload />,
+      icon: <LucideFileUpload />,
       fields: [
         {
           component: Input,

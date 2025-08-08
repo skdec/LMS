@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ReusableTable from "@/components/ui/table";
-import EditInvoiceModal from "@/components/EditInvoiceModal";
 import SearchInput from "@/components/ui/SearchInput";
 
 const PaymentHistoryPage = () => {
@@ -11,8 +10,6 @@ const PaymentHistoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [invoiceToEdit, setInvoiceToEdit] = useState(null);
   // Add search state
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -34,14 +31,6 @@ const PaymentHistoryPage = () => {
   const handleViewPayments = (invoice) => {
     setSelectedInvoice(invoice);
     setShowPaymentDetails(true);
-  };
-
-  const handleEditInvoice = (id) => {
-    const invoice = invoices.find((inv) => inv._id === id);
-    if (invoice) {
-      setInvoiceToEdit(invoice);
-      setShowEditModal(true);
-    }
   };
 
   // Filter invoices based on search query
@@ -169,7 +158,6 @@ const PaymentHistoryPage = () => {
               data={filteredInvoices}
               columns={columns}
               onView={handleViewPayments}
-              onUpdate={handleEditInvoice}
             />
           )}
         </div>
@@ -261,20 +249,6 @@ const PaymentHistoryPage = () => {
             </div>
           </div>
         )}
-
-        {/* Edit Invoice Modal */}
-        <EditInvoiceModal
-          invoice={invoiceToEdit}
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setInvoiceToEdit(null);
-          }}
-          onInvoiceUpdated={() => {
-            // Refresh the invoices list
-            fetchInvoices();
-          }}
-        />
       </div>
     </DashboardLayout>
   );

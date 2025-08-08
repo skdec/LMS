@@ -3,10 +3,9 @@ import { useEffect, useState } from "react";
 import axiosInstance from "@/utils/axiosInstance";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ReusableTable from "@/components/ui/table";
-import PaymentModal from "@/components/PaymentModal";
-import EditInvoiceModal from "@/components/EditInvoiceModal";
-import InvoiceAnalytics from "@/components/InvoiceAnalytics";
 import { useRouter } from "next/navigation";
+import PaymentModal from "@/components/modals/PaymentModal";
+import EditInvoiceModal from "@/components/modals/EditInvoiceModal";
 
 const InvoiceListPage = () => {
   const [invoices, setInvoices] = useState([]);
@@ -45,6 +44,11 @@ const InvoiceListPage = () => {
       console.error("Failed to delete invoice:", error);
       alert("Failed to delete the invoice. Please try again.");
     }
+  };
+
+  // Refresh invoices after payment or edit
+  const refreshInvoices = () => {
+    axiosInstance.get("/invoice").then((res) => setInvoices(res.data));
   };
 
   // Table columns configuration
@@ -140,9 +144,6 @@ const InvoiceListPage = () => {
           </button>
         </div>
 
-        {/* Analytics Dashboard */}
-        <InvoiceAnalytics />
-
         {/* Invoices table */}
         <ReusableTable
           data={invoices}
@@ -151,7 +152,6 @@ const InvoiceListPage = () => {
           onUpdate={handleUpdate}
           onDelete={handleDelete}
         />
-
         {/* Payment Modal */}
         <PaymentModal
           invoice={selectedInvoice}
@@ -160,12 +160,8 @@ const InvoiceListPage = () => {
             setShowPaymentModal(false);
             setSelectedInvoice(null);
           }}
-          onPaymentAdded={() => {
-            // Refresh the invoices list
-            axiosInstance.get("/invoice").then((res) => setInvoices(res.data));
-          }}
+          onPaymentAdded={refreshInvoices}
         />
-
         {/* Edit Invoice Modal */}
         <EditInvoiceModal
           invoice={invoiceToEdit}
@@ -174,10 +170,7 @@ const InvoiceListPage = () => {
             setShowEditModal(false);
             setInvoiceToEdit(null);
           }}
-          onInvoiceUpdated={() => {
-            // Refresh the invoices list
-            axiosInstance.get("/invoice").then((res) => setInvoices(res.data));
-          }}
+          onInvoiceUpdated={refreshInvoices}
         />
       </div>
     </DashboardLayout>

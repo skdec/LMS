@@ -8,6 +8,7 @@ import {
   updateInvoice,
   getPaymentAnalytics,
   getPaymentHistory,
+  sendInvoiceEmail,
 } from "../controllers/invoiceController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 
@@ -21,5 +22,6 @@ router.get("/:id/payment-history", authMiddleware, getPaymentHistory);
 router.put("/add-payment/:id", authMiddleware, addPayment);
 router.put("/:id", authMiddleware, updateInvoice);
 router.delete("/:id", authMiddleware, deleteInvoice);
+router.post("/:id/send-email", authMiddleware, sendInvoiceEmail);
 
 export default router;
